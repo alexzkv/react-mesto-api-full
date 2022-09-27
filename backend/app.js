@@ -3,18 +3,24 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 
+const userRouter = require('./routes/users');
+const cardRouter = require('./routes/cards');
+
+const { regex } = require('./utils/regex');
+
+const { login, createUser } = require('./controllers/users');
+
+const auth = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+
+const NotFoundError = require('./errors/NotFoundError');
+
 const { PORT = 3000 } = process.env;
 const app = express();
 
-const userRouter = require('./routes/users');
-const cardRouter = require('./routes/cards');
-const auth = require('./middlewares/auth');
-const NotFoundError = require('./errors/NotFoundError');
-const { login, createUser } = require('./controllers/users');
-const { regex } = require('./utils/regex');
-
 app.use(express.json());
 app.use(cookieParser());
+app.use(requestLogger);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -43,6 +49,7 @@ app.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
 
+app.use(errorLogger);
 app.use(errors());
 
 app.use((err, req, res, next) => {
