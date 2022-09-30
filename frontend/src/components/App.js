@@ -1,5 +1,5 @@
 import "../index.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import CurrentUserContext from "../contexts/CurrentUserContext";
 import * as auth from '../utils/auth';
@@ -21,30 +21,35 @@ export default function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+
   const [selectedCard, setSelectedCard] = useState(null);
+  const [deletingСard, setDeletingСard] = useState(null);
+
   const [currentUser, setCurrentUser] = useState(null);
   const [cards, setCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [deletingСard, setDeletingСard] = useState(null);
+  
   const [loggedIn, setLoggedIn] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
   const [isInfoTooltip, setIsInfoTooltip] = useState(false);
   const [isInfoTooltipSuccess, setIsInfoTooltipSuccess] = useState(false);
-  const [userInfo, setUserInfo] = useState({});
+  // const [userInfo, ] = useState({});
   const history = useHistory();
   const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen ||
   isAddPlacePopupOpen || selectedCard || setDeletingСard || isInfoTooltip;
 
   useEffect(() => {
-    if (loggedIn) {
-      Promise.all([api.getUserInfo(), api.getCards()])
-        .then(([userInfo, cards]) => {
-          setCurrentUser(userInfo);
-          setCards(cards);
-        })
-        .catch(err => console.log(err));
+    if (!loggedIn) {
+      return
     }
+    Promise.all([api.getUserInfo(), api.getCards()])
+      .then(([userData, cardData]) => {
+        setCurrentUser(userData.data);
+        setCards(cardData.data);
+      })
+      .catch(err => console.log(err));
   }, [loggedIn]);
-  
+
   useEffect(() => {
     function closeByEscape(evt) {
       if(evt.key === 'Escape') {
@@ -59,26 +64,12 @@ export default function App() {
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    const jwt = localStorage.getItem('jwt');
-    if (jwt) {
-      auth
-        .getContent(jwt)
-        .then(({ data }) => {
-          setLoggedIn(true);
-          setUserInfo(data);
-          history.push('/');
-        })
-        .catch(err => console.log(err));
-      }
-  }, [history]);
-
-  const handleRegister = (data) => {
-    auth.register(data)
+  const handleRegister = ({ email, password }) => {
+    auth.register({ email, password })
       .then(() => {
         setIsInfoTooltip(true);
         setIsInfoTooltipSuccess(true);
-        history.push('/sign-in');
+        history.push('/signin');
       })
       .catch((err) => {
         console.log(err);
@@ -87,12 +78,9 @@ export default function App() {
       });
   }
   
-  const handleLogin = (data) => {
-    auth
-      .authorize(data)
-      .then(({ token }) => {
-        localStorage.setItem('jwt', token);
-        setUserInfo(data);
+  const handleLogin = ({ email, password }) => {
+    auth.authorize({ email, password })
+      .then(() => {
         setLoggedIn(true);
         history.push('/');
       })
@@ -104,16 +92,51 @@ export default function App() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt');
-    setLoggedIn('false');
-    history.push('/sign-in');
+    auth.logout()
+      .then(() => {
+        setLoggedIn(false);
+        history.push('/signin');
+      })
+      .catch(err => console.log(err));
   }
 
-  const handleEditAvatarClick = () => { setIsEditAvatarPopupOpen(true) }
-  const handleEditProfileClick = () => { setIsEditProfilePopupOpen(true) }
-  const handleAddPlaceClick = () => { setIsAddPlacePopupOpen(true) }
-  const handleCardClick = (card) => { setSelectedCard(card) }
-  const handleCardDelete = (card) => { setDeletingСard(card) }
+  const getContent = useCallback(() => {
+    auth.getContent()
+      .then((res) => {
+        if(res) {
+          setLoggedIn(true);
+          history.push('/');
+        } else {
+          setLoggedIn(false);
+          history.push('/signin');
+        }
+      })
+      .catch(err => console.log(err));
+  }, [history]);
+
+  useEffect(() => {
+    getContent();
+  }, [getContent]);
+
+  const handleEditAvatarClick = () => { 
+    setIsEditAvatarPopupOpen(true);
+  }
+
+  const handleEditProfileClick = () => { 
+    setIsEditProfilePopupOpen(true);
+  }
+
+  const handleAddPlaceClick = () => { 
+    setIsAddPlacePopupOpen(true);
+  }
+
+  const handleCardClick = (card) => { 
+    setSelectedCard(card);
+  }
+
+  const handleCardDelete = (card) => { 
+    setDeletingСard(card);
+  }
   
   const closeAllPopups = () =>  {
     setIsEditAvatarPopupOpen(false);
@@ -147,8 +170,8 @@ export default function App() {
   const handleUpdateUser = ({ name, about }) => {
     setIsLoading(true);
     api.setUserInfo({ name, about })
-      .then((userInfo) => {
-        setCurrentUser(userInfo);
+      .then((userData) => {
+        setCurrentUser(userData);
         closeAllPopups();
       })
       .catch(err => console.log(err))
@@ -158,8 +181,8 @@ export default function App() {
   const handleUpdateAvatar = ({ avatar }) => {
     setIsLoading(true);
     api.setUserAvatar({ avatar })
-      .then((userInfo) => {
-        setCurrentUser(userInfo);
+      .then((userData) => {
+        setCurrentUser(userData);
         closeAllPopups();
       })
       .catch(err => console.log(err))
@@ -181,8 +204,8 @@ export default function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <Header 
-          userInfo={userInfo} 
-          loggedIn={loggedIn}
+          userEmail={currentUser?.email}
+          // loggedIn={loggedIn}
           handleLogout={handleLogout}
         />
         <Switch>
@@ -198,14 +221,14 @@ export default function App() {
             onCardDelete={handleCardDelete}
             cards={cards}
           />
-          <Route path='/sign-up'>
+          <Route path='/signup'>
             <Register onRegister={handleRegister} />
           </Route>
-          <Route path='/sign-in'>
+          <Route path='/signin'>
             <Login onLogin={handleLogin} />
           </Route>
           <Route>
-            {loggedIn ? <Redirect to='/' /> : <Redirect to='/sign-in' />}
+            {loggedIn ? <Redirect to='/' /> : <Redirect to='/signin' />}
           </Route>
         </Switch>
         <Footer />

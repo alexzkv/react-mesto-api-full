@@ -1,80 +1,84 @@
 class Api {
-  constructor(baseUrl, token) {
+  constructor(baseUrl, headers) {
     this._baseUrl = baseUrl;
-    this._token = token;
-    this._headers = {
-      'Content-type': 'application/json',
-      authorization: this._token
-    }
+    this._headers = headers;
   }
 
-  _сheckServerResponse(res) {
+  _сheckResponse(res) {
     return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
   }
 
   getUserInfo() {
-    return fetch(`${this._baseUrl}users/me`, {
+    return fetch(`${this._baseUrl}/users/me`, {
       headers: this._headers,
-      method: 'GET'
+      credentials: 'include',
     })
-    .then(this._сheckServerResponse);
+    .then(this._сheckResponse)
   }
 
   setUserInfo({ name, about }) {
-    return fetch(`${this._baseUrl}users/me`, {
-      headers: this._headers,
+    return fetch(`${this._baseUrl}/users/me`, {
       method: 'PATCH',
+      headers: this._headers,
+      credentials: 'include',
       body: JSON.stringify({ name, about })
     })
-    .then(this._сheckServerResponse);
+    .then(this._сheckResponse);
   }
 
   setUserAvatar(url) {
-    return fetch(`${this._baseUrl}users/me/avatar`, {
-      headers: this._headers,
+    return fetch(`${this._baseUrl}/users/me/avatar`, {
       method: 'PATCH',
+      headers: this._headers,
+      credentials: 'include',
       body: JSON.stringify(url)
     })
-    .then(this._сheckServerResponse);
+    .then(this._сheckResponse);
   }
 
   getCards() {
-    return fetch(`${this._baseUrl}cards`, {
+    return fetch(`${this._baseUrl}/cards`, {
       headers: this._headers,
-      method: 'GET'
+      credentials: 'include',
     })
-    .then(this._сheckServerResponse);
+    .then(this._сheckResponse);
   }
 
   setCard({ link, name }) {
-    return fetch(`${this._baseUrl}cards`, {
-      headers: this._headers,
+    return fetch(`${this._baseUrl}/cards`, {
       method: 'POST',
+      headers: this._headers,
+      credentials: 'include',
       body: JSON.stringify({ link: link, name: name })
     })
-    .then(this._сheckServerResponse);
+    .then(this._сheckResponse)
   }
 
-  deleteCard(_id) {
-    return fetch(`${this._baseUrl}cards/${_id}`, {
+  deleteCard(cardId) {
+    return fetch(`${this._baseUrl}/cards/${cardId}`, {
+      method: 'DELETE',
       headers: this._headers,
-      method: 'DELETE'
+      credentials: 'include',
     })
-    .then(this._сheckServerResponse);
+    .then(this._сheckResponse);
   }
 
-  changeLikeCardStatus(_id, isLiked) {
-    return fetch(`${this._baseUrl}/cards/${_id}/likes`, {
+  changeLikeCardStatus(cardId, isLiked) {
+    return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
+      method: isLiked ? 'PUT' : 'DELETE',
       headers: this._headers,
-      method: isLiked ? 'PUT' : 'DELETE'
+      credentials: 'include',
     })
-    .then(this._сheckServerResponse);
+    .then(this._сheckResponse);
   }
 }
 
-const api = new Api(
-  'https://mesto.nomoreparties.co/v1/cohort-43/',
-  'db177002-d58e-42cc-a0cb-65827554d6b2'
-);
+const api = new Api({
+  baseUrl: 'http://localhost:4000',
+  // 'db177002-d58e-42cc-a0cb-65827554d6b2',
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 export default api;

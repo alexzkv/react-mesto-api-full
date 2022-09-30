@@ -1,7 +1,7 @@
 import { Switch, Route, Link } from 'react-router-dom';
 import logo from "../images/logo-mesto.svg";
 
-export default function Header({ userInfo, handleLogout }) {
+export default function Header({ userEmail, handleLogout }) {
   return (
     <header className="header">
       <img
@@ -10,18 +10,18 @@ export default function Header({ userInfo, handleLogout }) {
         className="header__logo"
       />
       <Switch>
-        <Route path='/sign-up'>
-          <Link to='/sign-in' className="header__status">Войти</Link>
+        <Route path='/signup'>
+          <Link to='/signin' className="header__status">Войти</Link>
         </Route>
-        <Route path='/sign-in'>
-          <Link to='/sign-up' className="header__status">Регистрация</Link>
+        <Route path='/signin'>
+          <Link to='/signup' className="header__status">Регистрация</Link>
         </Route>
         <Route exact path='/'>
           <>
             <div className="header__menu">
-              <p className="header__status">{userInfo.email}</p>
+              <p className="header__status">{userEmail}</p>
               <Link
-                to='/sign-in'
+                to='/signin'
                 className="header__status"
                 onClick={handleLogout}
               >Выйти</Link>

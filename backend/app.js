@@ -2,24 +2,37 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
+const cors = require('cors');
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
 const { regex } = require('./utils/regex');
 
-const { login, createUser } = require('./controllers/users');
+const { login, createUser, logout } = require('./controllers/users');
 
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const NotFoundError = require('./errors/NotFoundError');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 4000 } = process.env;
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000',
+      'app-mesto.nomorepartiesxyz.ru',
+      'api.app-mesto.nomorepartiesxyz.ru',
+    ],
+    credentials: true,
+  }),
+);
+
 app.use(requestLogger);
 
 app.post('/signin', celebrate({
@@ -39,6 +52,8 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
   }),
 }), createUser);
+
+app.get('/logout', logout);
 
 app.use(auth);
 

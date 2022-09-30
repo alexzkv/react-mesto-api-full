@@ -121,13 +121,20 @@ const login = (req, res, next) => {
             .cookie('jwt', token, {
               maxAge: '3600000',
               httpOnly: true,
-              sameSite: true,
+              sameSite: 'none',
+              secure: true,
             })
-            .send({ data: user });
+            .send({ data: user.toJSON() });
         })
         .catch(next);
     })
     .catch(next);
+};
+
+const logout = (req, res) => {
+  res.clearCookie('jwt').send({
+    status: 'Сookies are cleared',
+  });
 };
 
 module.exports = {
@@ -136,6 +143,7 @@ module.exports = {
   createUser,
   updateProfile,
   updateAvatar,
-  login,
   getUserInfo,
+  login,
+  logout,
 };
