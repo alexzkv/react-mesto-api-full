@@ -41,7 +41,7 @@ export default function Main({
       </section>
       <section className="elements">
         <ul className="elements__grid">
-          {cards.map((item) => {
+          {cards?.map((item) => {
             return (
               <Card 
                 key={item._id}
