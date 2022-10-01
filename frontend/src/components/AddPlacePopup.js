@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import PopupWithForm from "./PopupWithForm";
+import { useState, useEffect } from 'react';
+import PopupWithForm from './PopupWithForm';
 
 export default function AddPlacePopup({ 
   isOpen, 

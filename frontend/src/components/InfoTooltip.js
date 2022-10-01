@@ -1,5 +1,5 @@
-import successfully from "../images/successfully.svg";
-import error from "../images/error.svg";
+import successfully from '../images/successfully.svg';
+import error from '../images/error.svg';
 
 export default function InfoTooltip({ isOpen, onClose, success }) {
   return (
