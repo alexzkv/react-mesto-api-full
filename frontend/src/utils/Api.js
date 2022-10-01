@@ -1,83 +1,77 @@
 class Api {
-  constructor({ baseUrl, headers }) {
+  constructor(baseUrl) {
       this._baseUrl = baseUrl;
-      this._headers = headers;
     }
 
-    _сheckResponse(res) {
+    _сheckServerResponse(res) {
       return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
     }
 
     getUserInfo() {
       return fetch(`${this._baseUrl}/users/me`, {
-        headers: this._headers,
         credentials: 'include',
       })
-      .then(this._сheckResponse)
+      .then(this._сheckServerResponse);
     }
 
     setUserInfo({ name, about }) {
       return fetch(`${this._baseUrl}/users/me`, {
         method: 'PATCH',
-        headers: this._headers,
         credentials: 'include',
+        headers: {
+          'Content-type': 'application/json',
+        },
         body: JSON.stringify({ name, about })
       })
-      .then(this._сheckResponse);
+      .then(this._сheckServerResponse);
     }
 
     setUserAvatar(url) {
       return fetch(`${this._baseUrl}/users/me/avatar`, {
+        headers: {
+          'Content-type': 'application/json',
+        },
         method: 'PATCH',
-        headers: this._headers,
         credentials: 'include',
         body: JSON.stringify(url)
       })
-      .then(this._сheckResponse);
+      .then(this._сheckServerResponse);
     }
 
     getCards() {
       return fetch(`${this._baseUrl}/cards`, {
-        headers: this._headers,
         credentials: 'include',
       })
-      .then(this._сheckResponse);
+      .then(this._сheckServerResponse);
     }
 
     setCard({ link, name }) {
       return fetch(`${this._baseUrl}/cards`, {
+        headers: {
+          'Content-type': 'application/json',
+        },
         method: 'POST',
-        headers: this._headers,
         credentials: 'include',
         body: JSON.stringify({ link: link, name: name })
       })
-      .then(this._сheckResponse)
+      .then(this._сheckServerResponse);
     }
 
-    deleteCard(cardId) {
-      return fetch(`${this._baseUrl}/cards/${cardId}`, {
+    deleteCard(_id) {
+      return fetch(`${this._baseUrl}/cards/${_id}`, {
         method: 'DELETE',
-        headers: this._headers,
         credentials: 'include',
       })
-      .then(this._сheckResponse);
+      .then(this._сheckServerResponse);
     }
 
-    changeLikeCardStatus(cardId, isLiked) {
-      return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
+    changeLikeCardStatus(_id, isLiked) {
+      return fetch(`${this._baseUrl}/cards/${_id}/likes`, {
         method: isLiked ? 'PUT' : 'DELETE',
-        headers: this._headers,
         credentials: 'include',
       })
-      .then(this._сheckResponse);
+      .then(this._сheckServerResponse);
     }
-  }
+}
 
-  const api = new Api({
-    baseUrl: 'http://localhost:4000',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-export default api;
+export default new Api('http://localhost:4000');

@@ -1,21 +1,21 @@
-import "../index.css";
-import { useState, useEffect, useCallback } from "react";
+import '../index.css';
+import { useState, useEffect, useCallback } from 'react';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
-import CurrentUserContext from "../contexts/CurrentUserContext";
+import CurrentUserContext from '../contexts/CurrentUserContext';
 import * as auth from '../utils/auth';
-import api from "../utils/Api";
-import Header from "./Header";
-import Main from "./Main";
-import Footer from "./Footer";
-import ImagePopup from "./ImagePopup";
-import EditProfilePopup from "./EditProfilePopup";
-import EditAvatarPopup from "./EditAvatarPopup";
-import AddPlacePopup from "./AddPlacePopup";
-import PopupWithConfirmation from "./PopupWithConfirmation";
-import Register from "./Register";
-import Login from "./Login";
-import ProtectedRoute from "./ProtectedRoute";
-import InfoTooltip from "./InfoTooltip";
+import api from '../utils/Api';
+import Header from './Header';
+import Main from './Main';
+import Footer from './Footer';
+import ImagePopup from './ImagePopup';
+import EditProfilePopup from './EditProfilePopup';
+import EditAvatarPopup from './EditAvatarPopup';
+import AddPlacePopup from './AddPlacePopup';
+import PopupWithConfirmation from './PopupWithConfirmation';
+import Register from './Register';
+import Login from './Login';
+import ProtectedRoute from './ProtectedRoute';
+import InfoTooltip from './InfoTooltip';
 
 export default function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -33,7 +33,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isInfoTooltip, setIsInfoTooltip] = useState(false);
   const [isInfoTooltipSuccess, setIsInfoTooltipSuccess] = useState(false);
-  // const [userInfo, ] = useState({});
+
   const history = useHistory();
   const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen ||
   isAddPlacePopupOpen || selectedCard || setDeletingСard || isInfoTooltip;
@@ -118,25 +118,11 @@ export default function App() {
     getContent();
   }, [getContent]);
 
-  const handleEditAvatarClick = () => { 
-    setIsEditAvatarPopupOpen(true);
-  }
-
-  const handleEditProfileClick = () => { 
-    setIsEditProfilePopupOpen(true);
-  }
-
-  const handleAddPlaceClick = () => { 
-    setIsAddPlacePopupOpen(true);
-  }
-
-  const handleCardClick = (card) => { 
-    setSelectedCard(card);
-  }
-
-  const handleCardDelete = (card) => { 
-    setDeletingСard(card);
-  }
+  const handleEditAvatarClick = () => setIsEditAvatarPopupOpen(true);
+  const handleEditProfileClick = () => setIsEditProfilePopupOpen(true);
+  const handleAddPlaceClick = () => setIsAddPlacePopupOpen(true);
+  const handleCardClick = (card) => setSelectedCard(card);
+  const handleCardDelete = (card) => setDeletingСard(card);
   
   const closeAllPopups = () =>  {
     setIsEditAvatarPopupOpen(false);
@@ -148,19 +134,19 @@ export default function App() {
   }
 
   const handleCardLike = ({ likes, _id }) => {
-    const isLiked = likes.some(i => i._id === currentUser._id);
+    const isLiked = likes.some(i => i === currentUser._id);
     api.changeLikeCardStatus(_id, !isLiked)
       .then((newCard) => {
-        setCards(state => state.map(c => c._id === _id ? newCard : c));
+        setCards(state => state.map(c => c._id === _id ? newCard.data : c));
       })
       .catch(err => console.log(err));
   }
 
   const handleСonfirmDelete = (card) => { 
     setIsLoading(true);
-    api.deleteCard(card._id)
+    api.deleteCard(card)
       .then(() => {
-        setCards(state => state.filter(d => d._id !== card._id));
+        setCards(state => state.filter(d => d._id !== card));
         closeAllPopups();
       })
       .catch(err => console.log(err))
@@ -171,7 +157,7 @@ export default function App() {
     setIsLoading(true);
     api.setUserInfo({ name, about })
       .then((userData) => {
-        setCurrentUser(userData);
+        setCurrentUser(userData.data);
         closeAllPopups();
       })
       .catch(err => console.log(err))
@@ -182,22 +168,22 @@ export default function App() {
     setIsLoading(true);
     api.setUserAvatar({ avatar })
       .then((userData) => {
-        setCurrentUser(userData);
+        setCurrentUser(userData.data);
         closeAllPopups();
       })
       .catch(err => console.log(err))
       .finally(() => setIsLoading(false));
   }
 
-  const handleAddPlaceSubmit = (item) => {
+  const handleAddPlaceSubmit = ({ name, link }) => {
     setIsLoading(true);
-    api.setCard(item)
-    .then((newCard) => {
-      setCards([newCard, ...cards]);
-      closeAllPopups();
-    })
-    .catch(err => console.log(err))
-    .finally(() => setIsLoading(false));
+    api.setCard({ name, link })
+      .then((newCard) => {
+        setCards([newCard.data, ...cards]);
+        closeAllPopups();
+      })
+      .catch(err => console.log(err))
+      .finally(() => setIsLoading(false));
   }
 
   return (
@@ -205,7 +191,6 @@ export default function App() {
       <div className="page">
         <Header 
           userEmail={currentUser?.email}
-          // loggedIn={loggedIn}
           handleLogout={handleLogout}
         />
         <Switch>
