@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -25,7 +27,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      // 'http://localhost:3001',
+      'http://localhost:3001',
       'http://app-mesto.nomorepartiesxyz.ru',
       'https://app-mesto.nomorepartiesxyz.ru',
     ],
