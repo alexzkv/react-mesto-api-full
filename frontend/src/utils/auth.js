@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:4000';
+const baseUrl = 'https://api.app-mesto.nomorepartiesxyz.ru';
 
 const headers = {
   'Content-Type': 'application/json',

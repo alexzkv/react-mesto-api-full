@@ -74,4 +74,4 @@ class Api {
     }
 }
 
-export default new Api('http://localhost:4000');
+export default new Api('https://api.app-mesto.nomorepartiesxyz.ru');
