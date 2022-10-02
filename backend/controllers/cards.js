@@ -1,9 +1,8 @@
-/* eslint-disable consistent-return */
 const Card = require('../models/card');
 
-const BadRequestError = require('../errors/BadRequestError');
-const ForbiddenError = require('../errors/ForbiddenError');
-const NotFoundError = require('../errors/NotFoundError');
+const { BadRequestError } = require('../errors/BadRequestError');
+const { ForbiddenError } = require('../errors/ForbiddenError');
+const { NotFoundError } = require('../errors/NotFoundError');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -30,11 +29,11 @@ const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return next(new NotFoundError('Карточка не найдена'));
+        throw new NotFoundError('Карточка не найдена');
       }
 
       if (card.owner._id.toString() !== req.user._id) {
-        return next(new ForbiddenError('Нельзя удалить чужую карточку'));
+        throw next(new ForbiddenError('Нельзя удалить чужую карточку'));
       }
 
       Card.findByIdAndDelete(req.params.cardId)
@@ -62,7 +61,7 @@ const likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return next(new NotFoundError('Карточка не найдена'));
+        throw new NotFoundError('Карточка не найдена');
       }
       return Card.populate(card, { path: 'owner' });
     })
@@ -83,7 +82,7 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return next(new NotFoundError('Карточка не найдена'));
+        throw new NotFoundError('Карточка не найдена');
       }
       return Card.populate(card, { path: 'owner' });
     })

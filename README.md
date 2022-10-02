@@ -8,7 +8,7 @@
 
 ## Ссылки на проект
 
-IP-адрес 84.252.139.30
+IP 84.252.139.30
 
 Frontend https://app-mesto.nomorepartiesxyz.ru
 
