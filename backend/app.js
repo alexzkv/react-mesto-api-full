@@ -27,7 +27,6 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      'http://localhost:3003',
       'https://app-mesto.nomorepartiesxyz.ru',
       'http://app-mesto.nomorepartiesxyz.ru',
     ],
