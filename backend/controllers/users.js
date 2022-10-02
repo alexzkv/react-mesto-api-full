@@ -126,13 +126,12 @@ const login = (req, res, next) => {
             { expiresIn: '7d' },
           );
 
-          res
-            .cookie('jwt', token, {
-              maxAge: '3600000',
-              httpOnly: true,
-              sameSite: 'none',
-              secure: true,
-            })
+          res.cookie('jwt', token, {
+            maxAge: '3600000',
+            httpOnly: true,
+            SameSite: 'none',
+            Secure: true,
+          })
             .send({ data: user.toJSON() });
         })
         .catch(next);

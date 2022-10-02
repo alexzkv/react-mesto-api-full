@@ -1,13 +1,13 @@
 {
   "name": "express-mesto-gha",
   "version": "1.0.0",
-  "description": "[![Tests for sprint 13](https://github.com/alexzkv/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/alexzkv/express-mesto-gha/actions/workflows/tests-13-sprint.yml)",
-  "main": "index.js",
+  "description": "Проект Mesto фронтенд + бэкенд",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "lint": "npx eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:inspect": "nodemon --inspect app.js",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",

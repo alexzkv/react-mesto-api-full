@@ -1,4 +1,5 @@
-const baseUrl = 'https://api.app-mesto.nomorepartiesxyz.ru';
+// const baseUrl = 'https://api.app-mesto.nomorepartiesxyz.ru';
+const baseUrl = 'http://localhost:3000';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -26,15 +27,6 @@ export const authorize = ({ email, password }) => {
   .then(res => checkResponse(res))
 }
 
-export const getContent = () => {
-  return fetch(`${baseUrl}/users/me`, {
-    method: 'GET',
-    headers,
-    credentials: 'include',
-  })
-  .then(res => checkResponse(res));
-}
-
 export const logout = () => {
   return fetch(`${baseUrl}/logout`, {
     method: 'GET',
@@ -43,3 +35,12 @@ export const logout = () => {
   })
   .then(res => checkResponse(res));
 }
+
+// export const getContent = () => {
+//   return fetch(`${baseUrl}/users/me`, {
+//     method: 'GET',
+//     headers,
+//     credentials: 'include',
+//   })
+//   .then(res => checkResponse(res));
+// }

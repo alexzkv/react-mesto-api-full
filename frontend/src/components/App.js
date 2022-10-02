@@ -1,5 +1,5 @@
 import '../index.css';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import CurrentUserContext from '../contexts/CurrentUserContext';
 import * as auth from '../utils/auth';
@@ -38,17 +38,37 @@ export default function App() {
   const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen ||
   isAddPlacePopupOpen || selectedCard || setDeletingСard || isInfoTooltip;
 
+  // useEffect(() => {
+  //   if (!loggedIn) {
+  //     return
+  //   }
+  //   Promise.all([api.getUserInfo(), api.getCards()])
+  //     .then(([userData, cardData]) => {
+  //       setCurrentUser(userData.data);
+  //       setCards(cardData.data);
+  //     })
+  //     .catch(err => console.log(err));
+  // }, [loggedIn]);
+
   useEffect(() => {
-    if (!loggedIn) {
-      return
-    }
-    Promise.all([api.getUserInfo(), api.getCards()])
-      .then(([userData, cardData]) => {
+    api.getUserInfo()
+      .then((userData) => {
         setCurrentUser(userData.data);
-        setCards(cardData.data);
+        setLoggedIn(true);
+        history.push('/');
       })
-      .catch(err => console.log(err));
-  }, [loggedIn]);
+      .catch((err) => console.log(err));
+  }, [loggedIn, history])
+  
+    useEffect(() => {
+      if (loggedIn) {
+        api.getCards()
+          .then((cardData) => {
+            setCards(cardData.data);
+          })
+          .catch((err) => console.log(err));
+      }
+    }, [loggedIn]);
 
   useEffect(() => {
     function closeByEscape(evt) {
@@ -100,23 +120,23 @@ export default function App() {
       .catch(err => console.log(err));
   }
 
-  const getContent = useCallback(() => {
-    auth.getContent()
-      .then((res) => {
-        if(res) {
-          setLoggedIn(true);
-          history.push('/');
-        } else {
-          setLoggedIn(false);
-          history.push('/signin');
-        }
-      })
-      .catch(err => console.log(err));
-  }, [history]);
+  // const getContent = useCallback(() => {
+  //   auth.getContent()
+  //     .then((res) => {
+  //       if(res) {
+  //         setLoggedIn(true);
+  //         history.push('/');
+  //       } else {
+  //         setLoggedIn(false);
+  //         history.push('/signin');
+  //       }
+  //     })
+  //     .catch(err => console.log(err));
+  // }, [history]);
 
-  useEffect(() => {
-    getContent();
-  }, [getContent]);
+  // useEffect(() => {
+  //   getContent();
+  // }, [getContent]);
 
   const handleEditAvatarClick = () => setIsEditAvatarPopupOpen(true);
   const handleEditProfileClick = () => setIsEditProfilePopupOpen(true);
