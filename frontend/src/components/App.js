@@ -38,18 +38,6 @@ export default function App() {
   const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen ||
   isAddPlacePopupOpen || selectedCard || setDeletingСard || isInfoTooltip;
 
-  // useEffect(() => {
-  //   if (!loggedIn) {
-  //     return
-  //   }
-  //   Promise.all([api.getUserInfo(), api.getCards()])
-  //     .then(([userData, cardData]) => {
-  //       setCurrentUser(userData.data);
-  //       setCards(cardData.data);
-  //     })
-  //     .catch(err => console.log(err));
-  // }, [loggedIn]);
-
   useEffect(() => {
     api.getUserInfo()
       .then((userData) => {
@@ -119,24 +107,6 @@ export default function App() {
       })
       .catch(err => console.log(err));
   }
-
-  // const getContent = useCallback(() => {
-  //   auth.getContent()
-  //     .then((res) => {
-  //       if(res) {
-  //         setLoggedIn(true);
-  //         history.push('/');
-  //       } else {
-  //         setLoggedIn(false);
-  //         history.push('/signin');
-  //       }
-  //     })
-  //     .catch(err => console.log(err));
-  // }, [history]);
-
-  // useEffect(() => {
-  //   getContent();
-  // }, [getContent]);
 
   const handleEditAvatarClick = () => setIsEditAvatarPopupOpen(true);
   const handleEditProfileClick = () => setIsEditProfilePopupOpen(true);

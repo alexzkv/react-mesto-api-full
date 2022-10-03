@@ -34,12 +34,3 @@ export const logout = () => {
   })
   .then(res => checkResponse(res));
 }
-
-// export const getContent = () => {
-//   return fetch(`${baseUrl}/users/me`, {
-//     method: 'GET',
-//     headers,
-//     credentials: 'include',
-//   })
-//   .then(res => checkResponse(res));
-// }

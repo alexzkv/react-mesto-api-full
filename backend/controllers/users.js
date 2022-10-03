@@ -104,39 +104,37 @@ const updateAvatar = (req, res, next) => {
     });
 };
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findOne({ email })
-    .select('+password')
-    .then((user) => {
-      if (!user) {
-        throw next(new AuthError('Неправильные почта или пароль'));
-      }
+  if (!email || !password) {
+    return next(new NotFoundError('Пользователь не найден'));
+  }
 
-      bcrypt.compare(password, user.password)
-        .then((isUserValid) => {
-          if (!isUserValid) {
-            next(new AuthError('Неправильные почта или пароль'));
-          }
+  try {
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return next(new AuthError('Неправильные почта или пароль'));
+    }
 
-          const token = jwt.sign(
-            { _id: user._id },
-            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-            { expiresIn: '7d' },
-          );
-
-          res.cookie('jwt', token, {
-            maxAge: '3600000',
-            httpOnly: true,
-            SameSite: 'none',
-            Secure: true,
-          })
-            .send({ data: user.toJSON() });
-        })
-        .catch(next);
-    })
-    .catch(next);
+    const isUserValid = await bcrypt.compare(password, user.password);
+    if (isUserValid) {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+      );
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        SameSite: 'None',
+        Secure: true,
+      });
+      return res.send(user);
+    }
+    return next(new AuthError('Неправильные почта или пароль'));
+  } catch (e) {
+    return next();
+  }
 };
 
 const logout = (req, res) => {
