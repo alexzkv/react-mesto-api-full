@@ -1,22 +1,15 @@
 require('dotenv').config();
 
+const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi, errors } = require('celebrate');
-const cors = require('cors');
 
-const userRouter = require('./routes/users');
-const cardRouter = require('./routes/cards');
+const routes = require('./routes');
 
-const { regex } = require('./utils/regex');
-
-const { login, createUser, logout } = require('./controllers/users');
-
-const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/error');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-
-const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -27,6 +20,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
+      'http://localhost:3001',
       'https://app-mesto.nomorepartiesxyz.ru',
       'http://app-mesto.nomorepartiesxyz.ru',
     ],
@@ -36,55 +30,17 @@ app.use(
 
 app.use(requestLogger);
 
+app.use(routes);
+
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string()
-      .regex(regex),
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), createUser);
-
-app.get('/logout', logout);
-
-app.use(auth);
-
-app.use('/', userRouter);
-app.use('/', cardRouter);
-
-app.use('*', (req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
-});
-
 app.use(errorLogger);
-
 app.use(errors());
-
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res.status(statusCode).send({
-    message: statusCode === 500
-      ? 'Произошла ошибка на сервере'
-      : message,
-  });
-  next();
-});
+app.use(errorHandler);
 
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb', {
