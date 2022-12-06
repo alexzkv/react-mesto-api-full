@@ -10,7 +10,7 @@
 
 [Frontend:](https://app-mesto.nomorepartiesxyz.ru) https://app-mesto.nomorepartiesxyz.ru
 
-IP 84.252.139.30
+Также доступен по публичному IP: 84.252.139.30
 
 ***
 
